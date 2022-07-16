@@ -1,4 +1,4 @@
-module autoconv
+module converter_generator
 
 go 1.16
 

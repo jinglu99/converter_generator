@@ -1,4 +1,4 @@
-package autoconv
+package converter_generator
 
 import (
 	"reflect"
