@@ -18,7 +18,7 @@ const x2PtrTpl = `
 	return nil 
 }
 {{ end }}
-{{- if .convertible }} return &in 
+{{- if .directlyAssign }} return &in
 {{- else -}} 
 out := {{.convFunc}}(in)
 return &out
@@ -29,24 +29,26 @@ var x2PtrTplParser = template.Must(template.New("x2Ptr").Parse(x2PtrTpl))
 
 func (x x2PtrGenerator) Handle(in, out typeInfo) string {
 	var needCheckNil bool
-	var convertible bool
+	var directlyAssign bool
 	var convFunc string
+	var outType string
 
 	if in.Kind() == reflect.Ptr {
 		needCheckNil = true
 	}
 
 	trueType := out.Elem()
-	if trueType.ConvertibleTo(in) {
-		convertible = true
+	if trueType.AssignableTo(out) {
+		directlyAssign = true
 	} else {
 		convFunc = convertByTypeInfo(in, trueType).FuncName()
 	}
 
 	argvs := map[string]interface{}{
-		"needCheckNil": needCheckNil,
-		"convertible":  convertible,
-		"convFunc":     convFunc,
+		"needCheckNil":   needCheckNil,
+		"convFunc":       convFunc,
+		"directlyAssign": directlyAssign,
+		"outType":        outType,
 	}
 
 	buf := bytes.Buffer{}
@@ -55,18 +57,4 @@ func (x x2PtrGenerator) Handle(in, out typeInfo) string {
 		panic(err)
 	}
 	return buf.String()
-	//
-	//sb := strings.Builder{}
-	//if in.Kind() == reflect.Ptr {
-	//	checkNil(&sb)
-	//}
-	//trueType := out.Elem()
-	//if trueType.ConvertibleTo(in) {
-	//	sb.WriteString("return &in")
-	//} else {
-	//	convFunc := convertByTypeInfo(in, trueType).FuncName()
-	//	sb.WriteString(fmt.Sprintf("out := %v(in)\n", convFunc))
-	//	sb.WriteString("return &out")
-	//}
-	//return sb.String()
 }

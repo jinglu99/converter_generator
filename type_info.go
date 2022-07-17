@@ -58,7 +58,7 @@ func (ti typeInfo) TypeName() string {
 		vInfo := typeInfo{t.Elem()}
 		return kInfo.TypeName() + vInfo.TypeName() + "Map"
 	case reflect.Struct:
-		return t.Name()
+		return getStructAlias(ti)
 	case reflect.Ptr:
 		tmpTI := typeInfo{t: t.Elem()}
 		return tmpTI.TypeName() + "Ptr"
@@ -112,8 +112,8 @@ func (ti typeInfo) Equal(t typeInfo) bool {
 	return t.t == ti.t && t.TypeName() == ti.TypeName()
 }
 
-func (ti typeInfo) ConvertibleTo(t typeInfo) bool {
-	return ti.t.ConvertibleTo(t.t)
+func (ti typeInfo) AssignableTo(t typeInfo) bool {
+	return ti.t.AssignableTo(t.t)
 }
 
 func (ti typeInfo) Kind() reflect.Kind {
