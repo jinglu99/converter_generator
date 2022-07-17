@@ -68,6 +68,8 @@ func (c conversion) generateBody() string {
 		reflect.Uint32, reflect.Uint64,
 		reflect.Float32, reflect.Float64:
 		return newX2IntGenerator().Handle(in, out)
+	case reflect.String:
+		return newX2StringGenerator().Handle(in, out)
 	default:
 		fmt.Println(out.Kind())
 		panic(fmt.Sprintf("can't convert from %v to %v", in.TypeString(), out.TypeString()))

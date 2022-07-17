@@ -14,7 +14,7 @@ func convert(source interface{}, dest interface{}) {
 
 func convertByTypeInfo(sType typeInfo, dType typeInfo) conversion {
 	if sType.GetType() == dType.GetType() {
-		panic("input same struct")
+		panic("input same struct: " + sType.TypeString())
 	}
 
 	key := generateConversionKey(sType, dType)

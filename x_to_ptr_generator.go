@@ -38,7 +38,7 @@ func (x x2PtrGenerator) Handle(in, out typeInfo) string {
 	}
 
 	trueType := out.Elem()
-	if trueType.AssignableTo(out) {
+	if in.AssignableTo(trueType) {
 		directlyAssign = true
 	} else {
 		convFunc = convertByTypeInfo(in, trueType).FuncName()

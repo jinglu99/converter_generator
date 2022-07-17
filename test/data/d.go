@@ -1,17 +1,29 @@
 package data
 
 type A struct {
-	A interface{}
+	Str1              string
+	Str2              *string
+	Int               int
+	Int1              *int
+	StringStringMap1  map[string]string
+	StringStringMap2 map[string]*string
 }
 
 type B struct {
-	B interface{}
+	Str1              string
+	Str2              string
+	Int               int64
+	Int1              *int64
+	StringStringMap1  map[*string]string
+	StringStringMap2 map[string]*string
 }
 
 type C struct {
-	Data map[string]A
+	StructB B
+	Data    map[string]A
 }
 
 type D struct {
-	Data map[string]B
+	StructA A
+	Data    map[string]B
 }

@@ -24,6 +24,12 @@ func (cg *ConverterGenerator) PkgName(pkg string) *ConverterGenerator {
 	return cg
 }
 
+
+func (cg *ConverterGenerator) FileName(file string) *ConverterGenerator {
+	cg.fileName = &file
+	return cg
+}
+
 func (cg *ConverterGenerator) Alias(entity interface{}, alias string) {
 	if entity == nil {
 		panic("input struct can't be nil")
@@ -85,7 +91,7 @@ func (cg ConverterGenerator) save() {
 	}
 
 	var filename = *cg.outputDir + "/" + fileName
-	err := ioutil.WriteFile(filename, []byte(output.String()), 0766)
+	err := ioutil.WriteFile(filename, []byte(output.String()), 755)
 	if err != nil {
 		panic(err)
 	}
