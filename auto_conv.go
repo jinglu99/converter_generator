@@ -17,7 +17,7 @@ func convertByTypeInfo(sType typeInfo, dType typeInfo) conversion {
 		panic("input same struct")
 	}
 
-	key := sType.TypeString() + "_" + dType.TypeString()
+	key := generateConversionKey(sType, dType)
 	if c, ok := conversions[key]; ok {
 		return c
 	}
@@ -32,3 +32,6 @@ func convertByTypeInfo(sType typeInfo, dType typeInfo) conversion {
 	return c
 }
 
+func generateConversionKey(sType, dType typeInfo) string {
+	return sType.TypeString() + "_" + dType.TypeString()
+}

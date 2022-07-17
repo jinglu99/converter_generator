@@ -2,23 +2,73 @@ package converter_generator
 
 import (
 	"io/ioutil"
-	"os"
+	"reflect"
 	"strings"
 )
 
 type ConverterGenerator struct {
-	OutputDir string
-	PkgName   string
+	outputDir *string
+	pkgName   *string
+	fileName  *string
+
+	conversions [][]typeInfo
 }
 
-func (cg ConverterGenerator) Convert(a, b interface{}) {
-	convert(a, b)
+func (cg *ConverterGenerator) OutputDir(dir string) *ConverterGenerator {
+	cg.outputDir = &dir
+	return cg
 }
 
-func (cg ConverterGenerator) Export() {
+func (cg *ConverterGenerator) PkgName(pkg string) *ConverterGenerator {
+	cg.pkgName = &pkg
+	return cg
+}
+
+func (cg *ConverterGenerator) Alias(entity interface{}, alias string) {
+	if entity == nil {
+		panic("input struct can't be nil")
+	}
+	addStructAlias(newTypeInfo(reflect.TypeOf(entity)), alias)
+}
+
+func (cg *ConverterGenerator) Convert(a, b interface{}, config ...ConversionConfig) {
+	if a == nil || b == nil {
+		panic("struct can't be nil")
+	}
+	sType := newTypeInfo(reflect.TypeOf(a))
+	dType := newTypeInfo(reflect.TypeOf(b))
+	if len(config) > 0 {
+		config[0].Export = true
+		addConversionConfig(sType, dType, config[0])
+	}
+
+	cg.conversions = append(cg.conversions, []typeInfo{sType, dType})
+}
+
+func (cg *ConverterGenerator) Generate() {
+	if cg.outputDir == nil || len(*cg.outputDir) == 0 {
+		panic("must provide output dir")
+	}
+
+	if cg.pkgName == nil || len(*cg.pkgName) == 0 {
+		panic("must provide pkg name")
+	}
+
+	for _, types := range cg.conversions {
+		convertByTypeInfo(types[0], types[1])
+	}
+
+	cg.save()
+}
+
+func (cg ConverterGenerator) save() {
+	fileName := "converters.go"
+	if cg.fileName != nil && len(*cg.fileName) > 0 {
+		fileName = *cg.fileName
+	}
 
 	output := strings.Builder{}
-	output.WriteString("package " + cg.PkgName + "\n\n")
+	output.WriteString("package " + *cg.pkgName + "\n\n")
 
 	pkgs := getAllPkgs()
 	if len(pkgs) > 0 {
@@ -34,21 +84,10 @@ func (cg ConverterGenerator) Export() {
 		output.WriteString(conv.body)
 	}
 
-	//fmt.Println(output.String())
-
-	os.MkdirAll(cg.OutputDir, 777)
-	os.Chmod(cg.OutputDir, 0766)
-	var filename = cg.OutputDir + "/convert.go"
+	var filename = *cg.outputDir + "/" + fileName
 	err := ioutil.WriteFile(filename, []byte(output.String()), 0766)
 	if err != nil {
 		panic(err)
 	}
 
-}
-
-func checkFileIsExist(filename string) bool {
-	if _, err := os.Stat(filename); os.IsNotExist(err) {
-		return false
-	}
-	return true
 }

@@ -44,8 +44,8 @@ func (c *conversion) Generate() {
 func (c conversion) generateBody() string {
 	sb := strings.Builder{}
 
-	if c.sType.ConvertibleTo(c.dType) {
-		sb.WriteString(fmt.Sprintf("return %v(in)", c.dType.TypeString()))
+	if c.sType.AssignableTo(c.dType) {
+		sb.WriteString(fmt.Sprintf("return (%v)(in)", c.dType.TypeString()))
 		return sb.String()
 	}
 
@@ -61,12 +61,34 @@ func (c conversion) generateBody() string {
 		return newX2MapGenerator().Handle(in, out)
 	case reflect.Struct:
 		return newX2StructGenerator().Handle(in, out)
+	case reflect.Int,
+		reflect.Int8, reflect.Int32,
+		reflect.Int64, reflect.Uint,
+		reflect.Uint8, reflect.Uint16,
+		reflect.Uint32, reflect.Uint64,
+		reflect.Float32, reflect.Float64:
+		return newX2IntGenerator().Handle(in, out)
 	default:
+		fmt.Println(out.Kind())
 		panic(fmt.Sprintf("can't convert from %v to %v", in.TypeString(), out.TypeString()))
 	}
 
+	return ""
 }
 
 func (c conversion) FuncName() string {
-	return fmt.Sprintf("Convert%vTo%v", c.sType.TypeName(), c.dType.TypeName())
+	funcName := fmt.Sprintf("convert%vTo%v", c.sType.TypeName(), c.dType.TypeName())
+	config := getConversionConfig(c.sType, c.dType)
+	if config == nil {
+		return funcName
+	}
+
+	if len(config.Name) > 0 {
+		return config.Name
+	}
+
+	if config.Export {
+		return strings.ToUpper(funcName[0:1]) + funcName[1:]
+	}
+	return funcName
 }

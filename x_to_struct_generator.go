@@ -20,15 +20,11 @@ const x2structTpl = `
 {{ end }}
 {{- if .directlyAssign }}
 	return {{.trulyIn}}
-{{- else if .convertible}}
-	return {{.outType}}({{.trulyIn}}))
 {{- else -}}
 	return {{ .outType}}{
 {{ range .fields -}}
 	{{ if .fieldDirectAssign -}}
 	{{.name}}: in.{{.source}},
-	{{- else if .fieldConvertible -}}
-	{{.name}}: ({{.fieldOutType}})(in.{{.source}}),
 	{{- else -}}
 	{{.name}}: {{.fieldConvFunc}}(in.{{.source}}),
 	{{- end }}
@@ -67,8 +63,6 @@ func (x x2StructGenerator) Handle(in, out typeInfo) string {
 	inTrueType := in
 	if outTrueType.Equal(inTrueType) {
 		directlyAssign = true
-	} else if inTrueType.ConvertibleTo(outTrueType) {
-		convertible = true
 	} else {
 		fields = make([]map[string]interface{}, 0)
 		fieldsCn := out.GetType().NumField()
@@ -76,12 +70,11 @@ func (x x2StructGenerator) Handle(in, out typeInfo) string {
 			var name string
 			var source string
 			var fieldDirectAssign bool
-			var fieldConvertible bool
-			var fieldOutType string
 			var fieldConvFunc string
 
 			field := outTrueType.GetType().Field(i)
-			sourceField, ok := inTrueType.GetType().FieldByName(field.Name)
+			sourceFieldName := getConvertSourceFieldName(inTrueType, outTrueType, field.Name)
+			sourceField, ok := inTrueType.GetType().FieldByName(sourceFieldName)
 			if !ok {
 				continue
 			}
@@ -91,11 +84,8 @@ func (x x2StructGenerator) Handle(in, out typeInfo) string {
 
 			fieldTypeInfo := newTypeInfo(field.Type)
 			sourceFieldInfo := newTypeInfo(sourceField.Type)
-			if fieldTypeInfo.Equal(sourceFieldInfo) {
+			if fieldTypeInfo.AssignableTo(sourceFieldInfo) {
 				fieldDirectAssign = true
-			} else if sourceFieldInfo.ConvertibleTo(fieldTypeInfo) {
-				fieldConvertible = true
-				fieldOutType = fieldTypeInfo.TypeString()
 			} else {
 				fieldConvFunc = convertByTypeInfo(sourceFieldInfo, fieldTypeInfo).FuncName()
 			}
@@ -104,8 +94,6 @@ func (x x2StructGenerator) Handle(in, out typeInfo) string {
 				"name":              name,
 				"source":            source,
 				"fieldDirectAssign": fieldDirectAssign,
-				"fieldConvertible":  fieldConvertible,
-				"fieldOutType":      fieldOutType,
 				"fieldConvFunc":     fieldConvFunc,
 			})
 
