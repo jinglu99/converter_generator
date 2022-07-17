@@ -9,9 +9,14 @@ func main() {
 	cg := converter_generator.ConverterGenerator{}
 	cg.OutputDir("converts")
 	cg.PkgName("converts")
-	cg.FileName("xxx.go")
+	//cg.FileName("xxx.go")
+
+
 
 	cg.Convert(data.D{}, data.C{}, converter_generator.ConversionConfig{
+		FieldMapper: [][]string{
+			{"StructA", "StructB"},
+		},
 		Export: true,
 	})
 	cg.Generate()

@@ -1,5 +1,4 @@
 # converter generator
-
 > designed for golang
 
 # 背景
@@ -42,62 +41,12 @@ type D struct {
 
 通过 converter generator自动生成从D到C的结构转换方法如下
 
-```cassandraql
-package converts
-
-import (
-   test_data "github.com/jingleWang/converter_generator/test/data"
-)
-
+```go
 func ConvertDToC(in test_data.D) test_data.C {
    return test_data.C{
-      Data: convertStringBMapToStringAMap(in.Data),
+      StructB: convertAToB(in.StructA),
+      Data:    convertStringBMapToStringAMap(in.Data),
    }
-}
-
-func convertInt64PtrToInt(in *int64) int {
-   if in == nil {
-      return 0
-   }
-   return int(*in)
-}
-
-func convertStringBMapToStringAMap(in map[string]test_data.B) map[string]test_data.A {
-   if in == nil {
-      return nil
-   }
-
-   out := map[string]test_data.A{}
-   for k, v := range in {
-      key := k
-      val := convertBToA(v)
-      out[key] = val
-   }
-   return out
-}
-
-func convertStringToStringPtr(in string) *string {
-   return &in
-}
-
-func convertInt64ToInt(in int64) int {
-
-   return int(in)
-}
-
-func convertInt64PtrToIntPtr(in *int64) *int {
-   if in == nil {
-      return nil
-   }
-   out := convertInt64PtrToInt(in)
-   return &out
-}
-
-func convertStringPtrToString(in *string) string {
-   if in == nil {
-      return ""
-   }
-   return string(*in)
 }
 
 func convertStringPtrStringMapToStringStringMap(in map[*string]string) map[string]string {
@@ -114,6 +63,73 @@ func convertStringPtrStringMapToStringStringMap(in map[*string]string) map[strin
    return out
 }
 
+func convertStringBMapToStringAMap(in map[string]test_data.B) map[string]test_data.A {
+   if in == nil {
+      return nil
+   }
+
+   out := map[string]test_data.A{}
+   for k, v := range in {
+      key := k
+      val := convertBToA(v)
+      out[key] = val
+   }
+   return out
+}
+
+func convertInt64PtrToInt(in *int64) int {
+   if in == nil {
+      return 0
+   }
+   return int(*in)
+}
+
+func convertStringStringMapToStringPtrStringMap(in map[string]string) map[*string]string {
+   if in == nil {
+      return nil
+   }
+
+   out := map[*string]string{}
+   for k, v := range in {
+      key := convertStringToStringPtr(k)
+      val := v
+      out[key] = val
+   }
+   return out
+}
+
+func convertAToB(in test_data.A) test_data.B {
+   return test_data.B{
+      Str1:             in.Str1,
+      Str2:             convertStringPtrToString(in.Str2),
+      Int:              convertIntToInt64(in.Int),
+      Int1:             convertIntPtrToInt64Ptr(in.Int1),
+      StringStringMap1: convertStringStringMapToStringPtrStringMap(in.StringStringMap1),
+      StringStringMap2: in.StringStringMap2,
+   }
+}
+
+func convertIntPtrToInt64Ptr(in *int) *int64 {
+   if in == nil {
+      return nil
+   }
+   out := convertIntPtrToInt64(in)
+   return &out
+}
+
+func convertInt64ToInt(in int64) int {
+
+   return int(in)
+}
+
+func convertInt64PtrToIntPtr(in *int64) *int {
+   if in == nil {
+      return nil
+   }
+   out := convertInt64PtrToInt(in)
+   return &out
+}
+
 func convertBToA(in test_data.B) test_data.A {
    return test_data.A{
       Str1:             in.Str1,
@@ -125,6 +141,27 @@ func convertBToA(in test_data.B) test_data.A {
    }
 }
 
+func convertStringPtrToString(in *string) string {
+   if in == nil {
+      return ""
+   }
+   return string(*in)
+}
+
+func convertIntPtrToInt64(in *int) int64 {
+   if in == nil {
+      return 0
+   }
+   return int64(*in)
+}
+
+func convertStringToStringPtr(in string) *string {
+   return &in
+}
+
+func convertIntToInt64(in int) int64 {
+   return int64(in)
+}
 ```
 
 conventer generator可以支持一些复杂结构转换的代码生成
@@ -158,12 +195,11 @@ func main() {
 
    cg.Generate()
 }
-
 ```
 
 ## 运行脚本
 
-```shell script
+```shell
 go run scripts.go
 ```
 
@@ -195,9 +231,9 @@ converter generator默认是通过字段名来对两个结构体直接做映射�
 
 ```
 cg.Convert(A{}, B{}, converter_generator.ConversionConfig{
-			FieldMap: [][]string{
-				{"F1", "F2"}
-			}
+         FieldMap: [][]string{
+            {"F1", "F2"}
+         }
 })
 ```
 
@@ -229,4 +265,3 @@ cg.Convert(A{}, B{}, converter_generator.ConversionConfig{
 ```
 
 那么生成的方法名就会变成 `ConvAB` 了
-

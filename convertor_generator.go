@@ -1,6 +1,7 @@
 package converter_generator
 
 import (
+	"fmt"
 	"io/ioutil"
 	"reflect"
 	"strings"
@@ -90,8 +91,10 @@ func (cg ConverterGenerator) save() {
 		output.WriteString(conv.body)
 	}
 
+	fmt.Print(output.String())
+
 	var filename = *cg.outputDir + "/" + fileName
-	err := ioutil.WriteFile(filename, []byte(output.String()), 755)
+	err := ioutil.WriteFile(filename, []byte(output.String()), 0755)
 	if err != nil {
 		panic(err)
 	}
