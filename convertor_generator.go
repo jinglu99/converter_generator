@@ -2,10 +2,14 @@ package converter_generator
 
 import (
 	"fmt"
+	"io/fs"
 	"io/ioutil"
+	"os/exec"
 	"reflect"
 	"strings"
 )
+
+var fileMode fs.FileMode = 0644
 
 type ConverterGenerator struct {
 	outputDir *string
@@ -13,6 +17,18 @@ type ConverterGenerator struct {
 	fileName  *string
 
 	conversions [][]typeInfo
+}
+
+func (cg *ConverterGenerator) FileMode(mode fs.FileMode) *ConverterGenerator {
+	fileMode = mode
+	return cg
+}
+
+func (cg *ConverterGenerator) PkgLen(l int) *ConverterGenerator {
+	if l >= 1 {
+		pkgLen = l
+	}
+	return cg
 }
 
 func (cg *ConverterGenerator) OutputDir(dir string) *ConverterGenerator {
@@ -104,9 +120,10 @@ func (cg ConverterGenerator) save() {
 	//fmt.Print(output.String())
 
 	var filename = *cg.outputDir + "/" + fileName
-	err := ioutil.WriteFile(filename, []byte(output.String()), 0755)
+	err := ioutil.WriteFile(filename, []byte(output.String()), fileMode)
 	if err != nil {
 		panic(err)
 	}
 
+	exec.Command("go", "fmt", filename).Run()
 }

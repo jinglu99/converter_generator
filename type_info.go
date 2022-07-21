@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+var pkgLen = 2
+
 func newTypeInfo(t reflect.Type) typeInfo {
 	return typeInfo{t: t}
 }
@@ -23,8 +25,6 @@ func (ti typeInfo) PkgPath() string {
 }
 
 func (ti typeInfo) PkgName() string {
-	pkgLen := 2
-
 	path := ti.PkgPath()
 	if path == "" {
 		return ""

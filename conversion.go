@@ -83,11 +83,35 @@ func (c defaultConversion) generateBody() string {
 	return ""
 }
 
+func toCamelCase(str string) string {
+	if len(str) == 0 {
+		return str
+	}
+	arr := strings.Split(str, "_")
+	sb := strings.Builder{}
+	sb.WriteString(arr[0])
+	for _, item := range arr[1:] {
+		sb.WriteString(upperFirstLetter(item))
+	}
+	return sb.String()
+}
+
+func upperFirstLetter(in string) string {
+	if len(in) == 0 {
+		return in
+	}
+	return strings.ToUpper(in[0:1]) + in[1:]
+}
+
 func (c defaultConversion) FuncName() string {
-	funcName := fmt.Sprintf("convert%vTo%v", c.sType.TypeName(), c.dType.TypeName())
+	funcName := fmt.Sprintf("convert%v%vTo%v%v", upperFirstLetter(toCamelCase(c.SType().PkgName())), c.SType().TypeName(), upperFirstLetter(toCamelCase(c.DType().PkgName())), c.DType().TypeName())
 	config := getConversionConfig(c.sType, c.dType)
 	if config == nil {
 		return funcName
+	}
+
+	if config.Slim {
+		funcName = fmt.Sprintf("convert%vTo%v", c.sType.TypeName(), c.dType.TypeName())
 	}
 
 	if len(config.Name) > 0 {
@@ -95,7 +119,7 @@ func (c defaultConversion) FuncName() string {
 	}
 
 	if config.Export {
-		return strings.ToUpper(funcName[0:1]) + funcName[1:]
+		return upperFirstLetter(funcName)
 	}
 	return funcName
 }

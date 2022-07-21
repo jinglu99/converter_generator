@@ -2,12 +2,19 @@ package converter_generator
 
 var conversionConfigs = map[string]ConversionConfig{}
 
+type FieldMapper struct {
+	Source   string
+	Target   string
+	ConvFunc *string
+}
+
 type ConversionConfig struct {
 	sType, dType typeInfo
 	key          string
-	FieldMapper  [][]string
-	fieldDict    map[string]string
+	FieldMapper  []*FieldMapper
+	fieldDict    map[string]*FieldMapper
 	Name         string
+	Slim         bool
 	Export       bool
 }
 
@@ -31,22 +38,26 @@ func getConversionConfig(sType, dType typeInfo) *ConversionConfig {
 	return &config
 }
 
-func getConvertSourceFieldName(sType, dType typeInfo, field string) string {
+func getConvertSourceFieldName(sType, dType typeInfo, field string) (string, *string) {
 	cc := getConversionConfig(sType, dType)
 	if cc == nil {
-		return field
+		return field, nil
 	}
 
 	if cc.fieldDict == nil {
-		cc.fieldDict = map[string]string{}
+		cc.fieldDict = map[string]*FieldMapper{}
 		for _, mapper := range cc.FieldMapper {
-			cc.fieldDict[mapper[1]] = mapper[0]
+			//var convFunc *string = nil
+			//if len(mapper) > 2 {
+			//	convFunc = &mapper[2]
+			//}
+			cc.fieldDict[mapper.Source] = mapper
 		}
 	}
 
 	source, ok := cc.fieldDict[field]
 	if ok {
-		return source
+		return source.Target, source.ConvFunc
 	}
-	return field
+	return field, nil
 }
