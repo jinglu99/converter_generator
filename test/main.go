@@ -13,6 +13,7 @@ func main() {
 	cg.OutputDir("converts")
 	cg.PkgName("converts")
 	//cg.FileName("xxx.go")
+	cg.WithPkgName(true)
 
 	cg.RegisterCustomConverter(time.Time{}, int64(1), "ConvTimeToInt")
 	cg.RegisterCustomConverter(int64(1), time.Time{}, "ConvIntToTime")

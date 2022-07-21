@@ -49,7 +49,7 @@ func (ti typeInfo) TypeName() string {
 		reflect.Uint32, reflect.Uint64,
 		reflect.Uintptr, reflect.Float32,
 		reflect.Float64, reflect.String:
-		return strings.ToUpper(t.Name()[:1]) + t.Name()[1:]
+		return getStructAlias(ti)
 	case reflect.Array, reflect.Slice:
 		tmpInfo := typeInfo{t.Elem()}
 		return tmpInfo.TypeName() + "List"

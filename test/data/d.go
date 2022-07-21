@@ -2,6 +2,9 @@ package data
 
 import "time"
 
+type EnumA int64
+type EnumB int64
+
 type A struct {
 	Str1             string
 	Str2             *string
@@ -12,6 +15,7 @@ type A struct {
 	B                *bool
 	T                time.Time
 	t                time.Time
+	EA               EnumA
 }
 
 type B struct {
@@ -24,6 +28,7 @@ type B struct {
 	B                bool
 	T                int64
 	t                time.Time
+	EA               EnumB
 }
 
 type C struct {
