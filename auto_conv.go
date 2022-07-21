@@ -1,6 +1,7 @@
 package converter_generator
 
 import (
+	"fmt"
 	"reflect"
 )
 
@@ -50,7 +51,7 @@ func convertByTypeInfo(sType typeInfo, dType typeInfo) conversion {
 		dType: dType,
 	}
 	c.Generate()
-	//fmt.Println(c.body)
+	fmt.Println(fmt.Sprintf("generate converter: [%v]=>[%v] as %v", sType.TypeString(), dType.TypeName(), c.FuncName()))
 	conversions[key] = c
 	return c
 }
