@@ -17,6 +17,7 @@ func main() {
 	cg.RegisterCustomConverter(time.Time{}, int64(1), "ConvTimeToInt")
 	cg.RegisterCustomConverter(int64(1), time.Time{}, "ConvIntToTime")
 
+	cg.Convert(data.A{}, data.B{})
 	cg.Convert(data.A{}, data2.A{})
 	cg.Convert(data2.A{}, data3.A{})
 

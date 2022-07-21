@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"html/template"
 	"reflect"
+	"unicode"
 )
 
 func newX2StructGenerator() generator {
@@ -73,7 +74,7 @@ func (x x2StructGenerator) Handle(in, out typeInfo) string {
 			var fieldConvFunc string
 
 			field := outTrueType.GetType().Field(i)
-			if !field.IsExported() {
+			if unicode.IsLower([]rune(field.Name)[0]) {
 				continue
 			}
 

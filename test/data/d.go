@@ -11,6 +11,7 @@ type A struct {
 	StringStringMap2 map[string]*string
 	B                *bool
 	T                time.Time
+	t                time.Time
 }
 
 type B struct {
@@ -22,6 +23,7 @@ type B struct {
 	StringStringMap2 map[string]*string
 	B                bool
 	T                int64
+	t                time.Time
 }
 
 type C struct {
