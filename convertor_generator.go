@@ -25,7 +25,6 @@ func (cg *ConverterGenerator) PkgName(pkg string) *ConverterGenerator {
 	return cg
 }
 
-
 func (cg *ConverterGenerator) FileName(file string) *ConverterGenerator {
 	cg.fileName = &file
 	return cg
@@ -36,6 +35,17 @@ func (cg *ConverterGenerator) Alias(entity interface{}, alias string) {
 		panic("input struct can't be nil")
 	}
 	addStructAlias(newTypeInfo(reflect.TypeOf(entity)), alias)
+}
+
+func (cg *ConverterGenerator) RegisterCustomConverter(a, b interface{}, f string) {
+	if a == nil || b == nil {
+		panic("struct can't be nil")
+	}
+	sType := newTypeInfo(reflect.TypeOf(a))
+	dType := newTypeInfo(reflect.TypeOf(b))
+
+	fmt.Println(fmt.Sprintf("register custom converter [%v]=>[%v] as %v", sType.TypeString(), dType.TypeString(), f))
+	addCustomFunc(sType, dType, f)
 }
 
 func (cg *ConverterGenerator) Convert(a, b interface{}, config ...ConversionConfig) {
@@ -88,10 +98,10 @@ func (cg ConverterGenerator) save() {
 
 	for _, conv := range conversions {
 		output.WriteString("\n\n")
-		output.WriteString(conv.body)
+		output.WriteString(conv.Body())
 	}
 
-	fmt.Print(output.String())
+	//fmt.Print(output.String())
 
 	var filename = *cg.outputDir + "/" + fileName
 	err := ioutil.WriteFile(filename, []byte(output.String()), 0755)

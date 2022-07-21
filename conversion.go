@@ -6,31 +6,34 @@ import (
 	"strings"
 )
 
-type conversion struct {
+type conversion interface {
+	SType() typeInfo
+	DType() typeInfo
+	Generate()
+	FuncName() string
+	Body() string
+}
+
+var _ conversion = (*defaultConversion)(nil)
+
+type defaultConversion struct {
 	sType, dType typeInfo
 	body         string
 }
 
-func getAllPkgs() map[string]string {
-	pkgs := map[string]string{}
-	for _, conversion := range conversions {
-		var pkg, path string
-		pkg = conversion.dType.PkgName()
-		path = conversion.dType.PkgPath()
-		if pkg != "" || path != "" {
-			pkgs[pkg] = path
-		}
-
-		pkg = conversion.sType.PkgName()
-		path = conversion.sType.PkgPath()
-		if pkg != "" || path != "" {
-			pkgs[pkg] = path
-		}
-	}
-	return pkgs
+func (c *defaultConversion) Body() string {
+	return c.body
 }
 
-func (c *conversion) Generate() {
+func (c *defaultConversion) SType() typeInfo {
+	return c.sType
+}
+
+func (c *defaultConversion) DType() typeInfo {
+	return c.dType
+}
+
+func (c *defaultConversion) Generate() {
 	funcName := c.FuncName()
 
 	sb := strings.Builder{}
@@ -41,7 +44,7 @@ func (c *conversion) Generate() {
 	c.body = sb.String()
 }
 
-func (c conversion) generateBody() string {
+func (c defaultConversion) generateBody() string {
 	sb := strings.Builder{}
 
 	if c.sType.AssignableTo(c.dType) {
@@ -70,6 +73,8 @@ func (c conversion) generateBody() string {
 		return newX2IntGenerator().Handle(in, out)
 	case reflect.String:
 		return newX2StringGenerator().Handle(in, out)
+	case reflect.Bool:
+		return newX2BoolGenerator().Handle(in, out)
 	default:
 		fmt.Println(out.Kind())
 		panic(fmt.Sprintf("can't convert from %v to %v", in.TypeString(), out.TypeString()))
@@ -78,7 +83,7 @@ func (c conversion) generateBody() string {
 	return ""
 }
 
-func (c conversion) FuncName() string {
+func (c defaultConversion) FuncName() string {
 	funcName := fmt.Sprintf("convert%vTo%v", c.sType.TypeName(), c.dType.TypeName())
 	config := getConversionConfig(c.sType, c.dType)
 	if config == nil {

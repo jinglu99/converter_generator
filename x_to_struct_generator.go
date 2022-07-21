@@ -2,6 +2,7 @@ package converter_generator
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"reflect"
 )
@@ -73,6 +74,10 @@ func (x x2StructGenerator) Handle(in, out typeInfo) string {
 			var fieldConvFunc string
 
 			field := outTrueType.GetType().Field(i)
+			if !field.IsExported() {
+				continue
+			}
+
 			sourceFieldName := getConvertSourceFieldName(inTrueType, outTrueType, field.Name)
 			sourceField, ok := inTrueType.GetType().FieldByName(sourceFieldName)
 			if !ok {
@@ -88,6 +93,10 @@ func (x x2StructGenerator) Handle(in, out typeInfo) string {
 				fieldDirectAssign = true
 			} else {
 				fieldConvFunc = convertByTypeInfo(sourceFieldInfo, fieldTypeInfo).FuncName()
+			}
+
+			if fieldConvFunc == "Unix" {
+				fmt.Println(generateConversionKey(sourceFieldInfo, fieldTypeInfo))
 			}
 
 			fields = append(fields, map[string]interface{}{

@@ -5,26 +5,25 @@ import (
 	"fmt"
 	"html/template"
 	"reflect"
-	"time"
 )
 
-func newX2IntGenerator() generator {
-	return x2IntGenerator{}
+func newX2BoolGenerator() generator {
+	return x2BoolGenerator{}
 }
 
-type x2IntGenerator struct {
+type x2BoolGenerator struct {
 }
 
-const x2IntTpl = `
+const x2BoolTpl = `
 {{- if .needCheckNil }}if in == nil { 
-	return 0 
+	return false 
 }
 {{- end }}
 return {{.outType}}({{.trulyIn}})`
 
-var x2IntTplParser = template.Must(template.New("x2Int").Parse(x2IntTpl))
+var x2BoolTplParser = template.Must(template.New("x2Bool").Parse(x2BoolTpl))
 
-func (x x2IntGenerator) Handle(in, out typeInfo) string {
+func (x x2BoolGenerator) Handle(in, out typeInfo) string {
 	oriIn, oriOut := in, out
 
 	var trulyIn string
@@ -47,17 +46,8 @@ func (x x2IntGenerator) Handle(in, out typeInfo) string {
 
 	outType = out.TypeString()
 
-	if in.t == reflect.TypeOf(time.Time{}) {
-
-	}
-
 	switch in.Kind() {
-	case reflect.Int,
-		reflect.Int8, reflect.Int32,
-		reflect.Int64, reflect.Uint,
-		reflect.Uint8, reflect.Uint16,
-		reflect.Uint32, reflect.Uint64,
-		reflect.Float32, reflect.Float64:
+	case reflect.Bool:
 	default:
 		panic(fmt.Sprintf("can't convert from %v to %v", oriIn.TypeString(), oriOut.TypeString()))
 	}
@@ -69,7 +59,7 @@ func (x x2IntGenerator) Handle(in, out typeInfo) string {
 	}
 
 	buf := bytes.Buffer{}
-	err := x2IntTplParser.Execute(&buf, argvs)
+	err := x2BoolTplParser.Execute(&buf, argvs)
 	if err != nil {
 		panic(err)
 	}
