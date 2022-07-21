@@ -51,7 +51,7 @@ func convertByTypeInfo(sType typeInfo, dType typeInfo) conversion {
 		dType: dType,
 	}
 	c.Generate()
-	fmt.Println(fmt.Sprintf("generate converter: [%v]=>[%v] as %v", sType.TypeString(), dType.TypeName(), c.FuncName()))
+	fmt.Println(fmt.Sprintf("generate converter: [%v]=>[%v] as %v", sType.TypeString(), dType.TypeString(), c.FuncName()))
 	conversions[key] = c
 	return c
 }
