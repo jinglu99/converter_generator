@@ -24,6 +24,11 @@ func (cg *ConverterGenerator) FileMode(mode fs.FileMode) *ConverterGenerator {
 	return cg
 }
 
+func (cg *ConverterGenerator) WithPkgName(b bool) *ConverterGenerator {
+	withPkgName = b
+	return cg
+}
+
 func (cg *ConverterGenerator) PkgLen(l int) *ConverterGenerator {
 	if l >= 1 {
 		pkgLen = l

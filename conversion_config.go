@@ -14,7 +14,6 @@ type ConversionConfig struct {
 	FieldMapper  []*FieldMapper
 	fieldDict    map[string]*FieldMapper
 	Name         string
-	Slim         bool
 	Export       bool
 }
 

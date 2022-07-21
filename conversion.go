@@ -104,14 +104,10 @@ func upperFirstLetter(in string) string {
 }
 
 func (c defaultConversion) FuncName() string {
-	funcName := fmt.Sprintf("convert%v%vTo%v%v", upperFirstLetter(toCamelCase(c.SType().PkgName())), c.SType().TypeName(), upperFirstLetter(toCamelCase(c.DType().PkgName())), c.DType().TypeName())
+	funcName := fmt.Sprintf("convert%vTo%v", upperFirstLetter(c.sType.TypeName()), upperFirstLetter(c.dType.TypeName()))
 	config := getConversionConfig(c.sType, c.dType)
 	if config == nil {
 		return funcName
-	}
-
-	if config.Slim {
-		funcName = fmt.Sprintf("convert%vTo%v", c.sType.TypeName(), c.dType.TypeName())
 	}
 
 	if len(config.Name) > 0 {
