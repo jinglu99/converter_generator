@@ -11,6 +11,7 @@ import (
 )
 
 var fileMode fs.FileMode = 0644
+var genComments = false
 
 type ConverterGenerator struct {
 	outputDir *string
@@ -34,6 +35,11 @@ func (cg *ConverterGenerator) PkgLen(l int) *ConverterGenerator {
 	if l >= 1 {
 		pkgLen = l
 	}
+	return cg
+}
+
+func (cg *ConverterGenerator) GenComments(b bool) *ConverterGenerator {
+	genComments = true
 	return cg
 }
 
@@ -133,6 +139,10 @@ func (cg ConverterGenerator) save() {
 
 	for _, conv := range convertors {
 		output.WriteString("\n\n")
+		if genComments {
+			output.WriteString(conv.Comment())
+			output.WriteString("\n")
+		}
 		output.WriteString(conv.Body())
 	}
 

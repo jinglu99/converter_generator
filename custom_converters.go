@@ -7,6 +7,10 @@ type customConversion struct {
 	f            string
 }
 
+func (c *customConversion) Comment() string {
+	panic("implement me")
+}
+
 func (c *customConversion) Body() string {
 	panic("implement me")
 }

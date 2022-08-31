@@ -12,6 +12,7 @@ type conversion interface {
 	Generate()
 	FuncName() string
 	Body() string
+	Comment() string
 }
 
 var _ conversion = (*defaultConversion)(nil)
@@ -19,6 +20,19 @@ var _ conversion = (*defaultConversion)(nil)
 type defaultConversion struct {
 	sType, dType typeInfo
 	body         string
+}
+
+func (c *defaultConversion) Comment() string {
+	sb := strings.Builder{}
+	sb.WriteString("// ")
+	sb.WriteString(c.FuncName())
+	sb.WriteString(" ")
+	sb.WriteString("convert from ")
+	sb.WriteString(c.sType.TypeString())
+	sb.WriteString(" to ")
+	sb.WriteString(c.dType.TypeString())
+	sb.WriteString(".")
+	return sb.String()
 }
 
 func (c *defaultConversion) Body() string {
