@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os/exec"
 	"reflect"
+	"sort"
 	"strings"
 )
 
@@ -121,7 +122,16 @@ func (cg ConverterGenerator) save() {
 		output.WriteString(")")
 	}
 
+	convertors := make([]conversion, 0)
 	for _, conv := range conversions {
+		convertors = append(convertors, conv)
+	}
+
+	sort.Slice(convertors, func(i, j int) bool {
+		return strings.Compare(convertors[i].FuncName(), convertors[j].FuncName()) < 0
+	})
+
+	for _, conv := range convertors {
 		output.WriteString("\n\n")
 		output.WriteString(conv.Body())
 	}
