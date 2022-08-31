@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html/template"
 	"reflect"
-	"time"
 )
 
 func newX2IntGenerator() generator {
@@ -46,10 +45,6 @@ func (x x2IntGenerator) Handle(in, out typeInfo) string {
 	}
 
 	outType = out.TypeString()
-
-	if in.t == reflect.TypeOf(time.Time{}) {
-
-	}
 
 	switch in.Kind() {
 	case reflect.Int,
