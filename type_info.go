@@ -21,10 +21,18 @@ func (ti typeInfo) GetType() reflect.Type {
 }
 
 func (ti typeInfo) PkgPath() string {
+	if ti.Kind() == reflect.Ptr {
+		return ti.Elem().PkgPath()
+	}
+
 	return ti.t.PkgPath()
 }
 
 func (ti typeInfo) PkgName() string {
+	if ti.Kind() == reflect.Ptr {
+		return ti.Elem().PkgName()
+	}
+
 	path := ti.PkgPath()
 	if path == "" {
 		return ""

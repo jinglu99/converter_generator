@@ -9,10 +9,12 @@ import (
 	test_data3 "github.com/jingleWang/converter_generator/test/data3"
 )
 
-func ConvertTestDataDToTestDataC(in test_data.D) test_data.C {
-	return test_data.C{
-		Data: convertStringtestDataBMapToStringtestDataAMap(in.Data),
+func ConvertTestDataDPtrToTestDataCPtr(in *test_data.D) *test_data.C {
+	if in == nil {
+		return nil
 	}
+	out := convertTestDataDPtrToTestDataC(in)
+	return &out
 }
 
 func convertBoolPtrToBool(in *bool) bool {
@@ -119,7 +121,10 @@ func convertStringtestDataBMapToStringtestDataAMap(in map[string]test_data.B) ma
 	return out
 }
 
-func convertTestData2AToTestData3A(in test_data2.A) test_data3.A {
+func convertTestData2APtrToTestData3A(in *test_data2.A) test_data3.A {
+	if in == nil {
+		return test_data3.A{}
+	}
 	return test_data3.A{
 		Str1:             in.Str1,
 		Str2:             in.Str2,
@@ -132,17 +137,12 @@ func convertTestData2AToTestData3A(in test_data2.A) test_data3.A {
 	}
 }
 
-func convertTestDataAToTestData2A(in test_data.A) test_data2.A {
-	return test_data2.A{
-		Str1:             in.Str1,
-		Str2:             in.Str2,
-		Int:              in.Int,
-		Int1:             in.Int1,
-		StringStringMap1: in.StringStringMap1,
-		StringStringMap2: in.StringStringMap2,
-		B:                in.B,
-		T:                in.T,
+func convertTestData2APtrToTestData3APtr(in *test_data2.A) *test_data3.A {
+	if in == nil {
+		return nil
 	}
+	out := convertTestData2APtrToTestData3A(in)
+	return &out
 }
 
 func convertTestDataAToTestDataB(in test_data.A) test_data.B {
@@ -170,6 +170,15 @@ func convertTestDataBToTestDataA(in test_data.B) test_data.A {
 		B:                convertBoolToBoolPtr(in.B),
 		T:                ConvIntToTime(in.T),
 		EA:               convertTestDataEnumBToTestDataEnumA(in.EA),
+	}
+}
+
+func convertTestDataDPtrToTestDataC(in *test_data.D) test_data.C {
+	if in == nil {
+		return test_data.C{}
+	}
+	return test_data.C{
+		Data: convertStringtestDataBMapToStringtestDataAMap(in.Data),
 	}
 }
 

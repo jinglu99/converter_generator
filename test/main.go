@@ -19,10 +19,10 @@ func main() {
 	cg.RegisterCustomConverter(int64(1), time.Time{}, "ConvIntToTime")
 
 	cg.Convert(data.A{}, data.B{})
-	cg.Convert(data.A{}, data2.A{})
-	cg.Convert(data2.A{}, data3.A{})
+	//cg.Convert(data.A{}, data.A{})
+	cg.Convert(&data2.A{}, &data3.A{})
 
-	cg.Convert(data.D{}, data.C{}, converter_generator.ConversionConfig{
+	cg.Convert(&data.D{}, &data.C{}, converter_generator.ConversionConfig{
 		FieldMapper: []*converter_generator.FieldMapper{
 			{"StructA", "StructB", nil},
 		},
